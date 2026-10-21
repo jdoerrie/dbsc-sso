@@ -699,6 +699,8 @@ The User Agent creates a new key pair when instructed by the Identity Provider v
 
 The User Agent only creates such a key if and only if the user has granted 3PC (via Storage Access API) for the target origin sent in the `Secure-Session-GenerateKey` header, and a valid Identity Provider session matching `provider_session_id` (with its associated AIK) is found. Otherwise the User Agent ignores the `Secure-Session-GenerateKey` header and does not reply to the Identity Provider.
 
+The User Agent may also skip `Secure-Session-GenerateKey` to prevent denial of service for the user, for example if the Identity Provider is requesting excessive TPM operations. In that case it ignores the header and does not reply to the Identity Provider. This matches the W3C DBSC [send a request](https://w3c.github.io/webappsec-dbsc/#algo-session-request) steps, under which the User Agent may skip a `Secure-Session-Registration` request, including one with `aik_required`, for the same reason.
+
 As the key needs to be generated while the user is signing in to the Relying Party, this operation must be done synchronously. However, as TEE key generation is generally slow (might take up to 1s to finish), this can lead to bad user experience due to considerable latency added to the sign in flow.
 
 To overcome this issue, browsers are expected to pre-generate keys as soon as the IdP's session is established. The User Agent triggers the key creation whenever it sees the `aik_required` parameter in the `Secure-Session-Registration` header. This is a strong signal that per-RP keys are to be asked by the IdP.
